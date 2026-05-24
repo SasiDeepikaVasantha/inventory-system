@@ -10,7 +10,7 @@ export async function GET() {
     },
   });
 
-  const products = inventories.map((item) => ({
+  const products = inventories.map((item : any) => ({
     inventoryId: item.id,
     productId: item.productId,
     warehouseId: item.warehouseId,
