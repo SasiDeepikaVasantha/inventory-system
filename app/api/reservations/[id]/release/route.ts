@@ -49,7 +49,7 @@ export async function POST(
     }
 
     await prisma.$transaction(
-      async (tx) => {
+      async (tx : any) => {
 
         await tx.inventory.updateMany({
           where: {
