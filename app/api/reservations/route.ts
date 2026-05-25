@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
@@ -14,7 +15,7 @@ export async function POST(req: NextRequest) {
     } = body;
 
     const reservation = await prisma.$transaction(
-      async (tx) => {
+      async (tx : Prisma.TransactionClient) => {
 
         const inventoryRows = await tx.$queryRaw<
           any[]
