@@ -1,25 +1,16 @@
 import { prisma } from "@/lib/prisma";
-import { Prisma } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
-
   try {
-
     const body = await req.json();
 
-    const {
-      productId,
-      warehouseId,
-      quantity,
-    } = body;
+    const { productId, warehouseId, quantity } = body;
 
     const reservation = await prisma.$transaction(
-      async (tx : Prisma.TransactionClient) => {
+      async (tx: any) => {
 
-        const inventoryRows = await tx.$queryRaw<
-          any[]
-        >`
+        const inventoryRows = await tx.$queryRaw<any[]>`
           SELECT *
           FROM "Inventory"
           WHERE "productId" = ${productId}
@@ -34,11 +25,9 @@ export async function POST(req: NextRequest) {
         }
 
         const availableStock =
-          inventory.totalStock -
-          inventory.reservedStock;
+          inventory.totalStock - inventory.reservedStock;
 
         if (availableStock < quantity) {
-
           throw new Error("INSUFFICIENT_STOCK");
         }
 
@@ -57,15 +46,14 @@ export async function POST(req: NextRequest) {
           Date.now() + 10 * 60 * 1000
         );
 
-        const reservation =
-          await tx.reservation.create({
-            data: {
-              productId,
-              warehouseId,
-              quantity,
-              expiresAt,
-            },
-          });
+        const reservation = await tx.reservation.create({
+          data: {
+            productId,
+            warehouseId,
+            quantity,
+            expiresAt,
+          },
+        });
 
         return reservation;
       }
@@ -75,10 +63,7 @@ export async function POST(req: NextRequest) {
 
   } catch (error: any) {
 
-    if (
-      error.message === "INSUFFICIENT_STOCK"
-    ) {
-
+    if (error.message === "INSUFFICIENT_STOCK") {
       return NextResponse.json(
         {
           error: "Not enough stock available",
@@ -91,7 +76,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(
       {
-        error: error.message,
+        error: error.message || "Something went wrong",
       },
       {
         status: 500,
