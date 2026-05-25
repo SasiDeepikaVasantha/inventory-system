@@ -1,16 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
-export default function ReservationPage({ params }: any) {
+export default function ReservationPage() {
+  const params = useParams(); // ✅ FIX
+  const id = params?.id as string;
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (!id) return; // ✅ WAIT until id is available
+
     async function fetchData() {
       try {
-        const res = await fetch(`/api/reservations/${params.id}`);
+        const res = await fetch(`/api/reservations/${id}`);
 
         if (!res.ok) {
           const err = await res.json();
@@ -27,10 +33,10 @@ export default function ReservationPage({ params }: any) {
     }
 
     fetchData();
-  }, [params.id]);
+  }, [id]);
 
   async function confirm() {
-    const res = await fetch(`/api/reservations/${params.id}/confirm`, {
+    const res = await fetch(`/api/reservations/${id}/confirm`, {
       method: "POST",
     });
 
@@ -46,7 +52,7 @@ export default function ReservationPage({ params }: any) {
   }
 
   async function cancel() {
-    const res = await fetch(`/api/reservations/${params.id}/release`, {
+    const res = await fetch(`/api/reservations/${id}/release`, {
       method: "POST",
     });
 
@@ -61,12 +67,10 @@ export default function ReservationPage({ params }: any) {
     window.location.href = "/";
   }
 
-  // Loading state
   if (loading) {
     return <p className="p-10 text-lg">Loading reservation...</p>;
   }
 
-  // Error state
   if (error) {
     return (
       <div className="p-10 text-red-600">
@@ -76,7 +80,6 @@ export default function ReservationPage({ params }: any) {
     );
   }
 
-  // No data
   if (!data) {
     return <p className="p-10">Reservation not found</p>;
   }
@@ -84,7 +87,6 @@ export default function ReservationPage({ params }: any) {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-md">
-        
         <h1 className="text-2xl font-bold mb-6 text-center">
           Reservation Details
         </h1>

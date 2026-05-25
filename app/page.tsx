@@ -63,8 +63,9 @@ export default function HomePage() {
       });
 
       const data = await res.json();
+      console.log("Reservation response:", data);
 
-      if (!res.ok) {
+      if (!res.ok || !data.id) {
 
         setMessage(data.error || "Reservation failed");
 
